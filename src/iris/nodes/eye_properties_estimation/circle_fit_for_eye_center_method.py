@@ -1,5 +1,6 @@
 from typing import Tuple
 
+import cv2
 import numpy as np
 from pydantic import Field
 
@@ -85,12 +86,15 @@ class CircleFitEyeCenterMethod(Algorithm):
         x = pts[:, 0]
         y = pts[:, 1]
 
-        A = np.column_stack([x, y, np.ones_like(x)])
-        b = -(x * x + y * y)
+        A = np.column_stack([x, y, np.ones_like(x)]).astype(np.float64)
+        b = (-(x * x + y * y)).reshape(-1, 1).astype(np.float64)
 
-        coeffs, _, _, _ = np.linalg.lstsq(A, b, rcond=None)
+        ok, coeffs = cv2.solve(A, b, flags=cv2.DECOMP_SVD)
+        if not ok:
+            raise EyeCentersEstimationError("Circle fit failed")
 
-        a, b_, c = coeffs
+        a, b_, c = coeffs.ravel()
+
         cx = -a / 2.0
         cy = -b_ / 2.0
 
