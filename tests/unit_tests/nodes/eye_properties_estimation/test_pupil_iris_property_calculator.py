@@ -6,6 +6,7 @@ from pydantic import ValidationError
 
 from iris.io.dataclasses import GeometryPolygons
 from iris.nodes.eye_properties_estimation.bisectors_method import BisectorsMethod
+from iris.nodes.eye_properties_estimation.circle_fit_for_eye_center_method import CircleFitEyeCenterMethod
 from iris.nodes.eye_properties_estimation.pupil_iris_property_calculator import (
     PupilIrisPropertyCalculator,
     PupilIrisPropertyEstimationError,
@@ -126,6 +127,15 @@ def test_pupil_iris_property(
 ) -> None:
     mock_polygons = GeometryPolygons(pupil_array=pupil_array, iris_array=iris_array, eyeball_array=iris_array)
     eye_center_obj = BisectorsMethod()
+    eye_center = eye_center_obj(mock_polygons)
+    pupil_iris_property_obj = PupilIrisPropertyCalculator(
+        min_pupil_diameter=min_pupil_diameter, min_iris_diameter=min_iris_diameter
+    )
+    p2i_property = pupil_iris_property_obj(mock_polygons, eye_center)
+    assert math.isclose(p2i_property.pupil_to_iris_diameter_ratio, expected_diameter_ratio, rel_tol=1e-03)
+    assert math.isclose(p2i_property.pupil_to_iris_center_dist_ratio, expected_center_dist_ratio, rel_tol=1e-03)
+
+    eye_center_obj = CircleFitEyeCenterMethod()
     eye_center = eye_center_obj(mock_polygons)
     pupil_iris_property_obj = PupilIrisPropertyCalculator(
         min_pupil_diameter=min_pupil_diameter, min_iris_diameter=min_iris_diameter
