@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from iris.nodes.eye_properties_estimation.bisectors_method import BisectorsMethod
+from iris.nodes.eye_properties_estimation.circle_fit_for_eye_center_method import CircleFitEyeCenterMethod
 
 
 def load_mock_pickle(name: str) -> Any:
@@ -17,13 +17,13 @@ def load_mock_pickle(name: str) -> Any:
 
 
 @pytest.fixture
-def algorithm() -> BisectorsMethod:
-    return BisectorsMethod(num_bisectors=100, min_distance_between_sector_points=0.75, max_iterations=50)
+def algorithm() -> CircleFitEyeCenterMethod:
+    return CircleFitEyeCenterMethod(mad_scale=3.0)
 
 
-def test_e2e_bisectors_method_algorithm(algorithm: BisectorsMethod) -> None:
+def test_e2e_bisectors_method_algorithm(algorithm: CircleFitEyeCenterMethod) -> None:
     mock_polygons = load_mock_pickle(name="geometry_polygons")
-    expected_result = load_mock_pickle(name="bisector_method_e2e_expected_result")
+    expected_result = load_mock_pickle(name="circle_fit_method_e2e_expected_result")
 
     result = algorithm(geometries=mock_polygons)
 
