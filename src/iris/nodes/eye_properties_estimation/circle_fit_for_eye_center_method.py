@@ -14,7 +14,7 @@ class CircleFitEyeCenterMethod(Algorithm):
     This algorithm estimates the center of a pupil or iris polygon using:
 
     1. an initial least-squares circle fit to all polygon points,
-    2. trimming of outlier points based on radial residuals,
+    2. trimming of outlier points based on radial residuals using a dynamic threshold,
     3. a second circle fit on the retained inliers.
 
     LIMITATIONS:
@@ -26,21 +26,22 @@ class CircleFitEyeCenterMethod(Algorithm):
     class Parameters(Algorithm.Parameters):
         """Default parameters for circle-fit eye center algorithm."""
 
-        inlier_ratio: float = Field(..., gt=0.0, lt=1.0)
+        mad_scale: float = Field(..., gt=0.0)
 
     __parameters_type__ = Parameters
 
     def __init__(
         self,
-        inlier_ratio: float = 0.9,
+        mad_scale: float = 3.0,
     ) -> None:
         """Assign parameters.
 
         Args:
-            inlier_ratio (float, optional): Fraction of points retained after the
-                initial fit based on the smallest radial residuals. Defaults to 0.9.
+            mad_scale (float, optional): Scale factor used in the dynamic inlier
+                threshold: median(residuals) + mad_scale * MAD(residuals).
+                Defaults to 3.0.
         """
-        super().__init__(inlier_ratio=inlier_ratio)
+        super().__init__(mad_scale=mad_scale)
 
     def run(self, geometries: GeometryPolygons) -> EyeCenters:
         """Estimate pupil and iris centers.
@@ -100,14 +101,25 @@ class CircleFitEyeCenterMethod(Algorithm):
         r = np.sqrt(r_sq)
         center = np.array([cx, cy], dtype=np.float64)
 
-        # Trim outliers using radial residuals
+        # Trim outliers using dynamic radial residual threshold
         d = np.linalg.norm(pts - center, axis=1)
         residuals = np.abs(d - r)
 
-        num_keep = max(int(len(pts) * self.params.inlier_ratio), 3)
+        median_residual = np.median(residuals)
+        mad = np.median(np.abs(residuals - median_residual))
 
-        keep_idx = np.argsort(residuals)[:num_keep]
-        inliers = pts[keep_idx]
+        if mad == 0:
+            keep_mask = residuals <= median_residual
+        else:
+            threshold = median_residual + self.params.mad_scale * mad
+            keep_mask = residuals <= threshold
+
+        inliers = pts[keep_mask]
+
+        # Ensure enough points remain to refit
+        if len(inliers) < 3:
+            keep_idx = np.argsort(residuals)[:3]
+            inliers = pts[keep_idx]
 
         # Refit circle on inliers
         x = inliers[:, 0]
