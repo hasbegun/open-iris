@@ -18,7 +18,7 @@ def load_mock_pickle(name: str) -> Any:
 
 @pytest.fixture
 def algorithm() -> CircleFitEyeCenterMethod:
-    return CircleFitEyeCenterMethod(inlier_ratio=0.9)
+    return CircleFitEyeCenterMethod(mad_scale=3.0)
 
 
 def test_e2e_bisectors_method_algorithm(algorithm: CircleFitEyeCenterMethod) -> None:

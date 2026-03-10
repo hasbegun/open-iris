@@ -36,4 +36,4 @@ def test_precomputed_pupil_iris_property_circle_fit_method() -> None:
     p2i_property = pupil_iris_property_obj(mock_polygons, eye_center)
 
     assert math.isclose(p2i_property.pupil_to_iris_diameter_ratio, 0.543019583685283)
-    assert math.isclose(p2i_property.pupil_to_iris_center_dist_ratio, 0.03745905756158967)
+    assert math.isclose(p2i_property.pupil_to_iris_center_dist_ratio, 0.03771351406478552)
