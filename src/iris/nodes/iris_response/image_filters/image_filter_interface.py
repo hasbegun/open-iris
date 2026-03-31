@@ -27,11 +27,11 @@ class ImageFilter(Algorithm):
         )
 
     @property
-    def kernel_norm(self) -> float:
+    def kernel_norm(self) -> np.complex64:
         """Get kernel norm.
 
         Returns:
-            float: Filter kernel norm.
+            np.complex64 : Filter kernel norm.
         """
         return self.__kernel_norm
 
