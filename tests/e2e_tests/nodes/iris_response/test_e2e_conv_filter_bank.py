@@ -65,7 +65,7 @@ def test_computed_responses_maskisduplicated(
     second_schema: ProbeSchema,
     third_schema: ProbeSchema,
 ) -> None:
-    expected_result = load_mock_pickle("e2e_expected_result")
+    expected_result = load_mock_pickle("e2e_expected_result_maskduplicated")
 
     filterbank = ConvFilterBank(
         filters=[first_filter, second_filter, third_filter],
@@ -90,7 +90,7 @@ def test_computed_responses(
     second_schema: ProbeSchema,
     third_schema: ProbeSchema,
 ) -> None:
-    expected_result = load_mock_pickle("e2e_expected_result_masknotduplicated")
+    expected_result = load_mock_pickle("e2e_expected_result")
 
     filterbank = ConvFilterBank(
         filters=[first_filter, second_filter, third_filter],

@@ -157,7 +157,7 @@ class ConvFilterBank(Algorithm):
 
                 # Get patch from image centered at [i,j] probed pixel position.
                 rtop = max(0, r_probe - p_rows)
-                rbot = min(r_probe + p_rows + 1, i_rows - 1)
+                rbot = min(r_probe + p_rows + 1, i_rows)
                 iris_patch = padded_iris[rtop:rbot, c_probe : c_probe + k_cols]
                 mask_patch = padded_mask[rtop:rbot, c_probe : c_probe + k_cols]
                 ktop = p_rows - iris_patch.shape[0] // 2
